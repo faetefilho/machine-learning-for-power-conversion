@@ -38,8 +38,13 @@ ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 #labaling
-plt.title('Switching angles theta1')
-ax.set_xlabel('Vdc1, volts')
-ax.set_ylabel('Vdc2, volts')
-ax.set_zlabel('Angle, degrees')
+# remove color bar
+plt.title('Switching Angles (\u03B8\N{SUBSCRIPT ONE})')
+ax.set_xlabel('Vdc\N{SUBSCRIPT ONE} (V)')
+ax.set_ylabel('Vdc\N{SUBSCRIPT TWO} (V)')
+ax.set_zlabel('Angle (Degrees)')
 plt.show()
+
+# add a plot with columns L M N O P on the same plot and with legends
+# add separate plot for column Q
+
