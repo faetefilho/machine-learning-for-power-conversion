@@ -1,9 +1,10 @@
 from turtle import position
 from matplotlib import cm, figure
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.ticker import LinearLocator, FormatStrFormatter, MaxNLocator
 from openpyxl import load_workbook
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MaxNLocator
 
 #creating new listes in order to append data onto them
 #in this case the data will come as a tuple
@@ -48,7 +49,9 @@ class figures:
         
         
         #cosmetic changes
-        plt.title('Switching Angles (\u03B8\N{SUBSCRIPT ONE}) t'+ str(b))
+        self.zaxis.set_major_locator(MaxNLocator(integer=True))
+        self.locator_params(axis='z', nbins=4)
+        plt.title('Switching Angles (\u03B8\N{SUBSCRIPT ONE}) t'+ str(b),y=1.0 , pad=4)
         self.set_xlabel('Vdc\N{SUBSCRIPT ONE} (V)')
         self.set_ylabel('Vdc\N{SUBSCRIPT TWO} (V)')
         self.set_zlabel('Angle ($^\circ$)')
@@ -69,3 +72,4 @@ p6 = figures(6,5)
 p6.graph()
 
 plt.show()
+
