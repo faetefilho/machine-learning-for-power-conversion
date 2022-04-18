@@ -3,7 +3,7 @@ from sklearn.linear_model import LinearRegression
 from openpyxl import load_workbook
 import pandas as pd
 from sklearn import linear_model
-
+from sklearn.model_selection import train_test_split 
 
 
 wb = load_workbook(r"C:\Users\alqas\Research\SHEtable2Vdc.xlsx")
@@ -50,3 +50,6 @@ new_x =112
 new_y = 120
 print(regression.predict([[new_x, new_y]]))
 
+# it is missing the test/train split
+# add a plot of z_1 from linear regression model vs actual
+# need a measure of error, performance: lets look at MSE first
