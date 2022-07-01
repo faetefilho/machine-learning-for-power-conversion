@@ -32,18 +32,35 @@ for g in range(1,7):
         for row in col:
             z_t1[g-1].append(row)
 
+# resizing the data to fit the regression model
 z_variable_selection = 0
 df = pd.DataFrame({"x_1":np.array(x_vdc1).reshape(496,), "x_2":np.array(y_vdc2).reshape(496,), "y":np.array(z_t1[z_variable_selection]).reshape(496,)}, index=range(0,496))
 
+#sepperating inputs and outputs
 X, y = df[["x_1", "x_2"]], df["y"]
+
+#selecting polynomial degree
 poly = PolynomialFeatures(degree=10, include_bias=False)
 poly_features = poly.fit_transform(X)
+
+#splitting test and training data
 X_train, X_test, y_train, y_test = train_test_split(poly_features, y, test_size=0.2, random_state=48)
+
+#fitting polynomial regression
 poly_reg_model = LinearRegression()
-poly_reg_model.fit(X_train, y_train)    
+poly_reg_model.fit(X_train, y_train)  
+
+#predicting values for test set
+start=timeit.default_timer()  
 poly_reg_y_predicted = poly_reg_model.predict(X_test)
+
+#finding Mean squared error
 poly_reg_rmse = np.sqrt(mean_squared_error(y_test, poly_reg_y_predicted))
 
+stop = timeit.default_timer()
+print('Time: ', stop - start)
+
+#reformating input data for graphing
 x_test = []
 Y_test = []
 for point in range(len(X_test)):
@@ -53,6 +70,7 @@ for point in range(len(X_test)):
 print(poly_reg_y_predicted)
 print(poly_reg_rmse)
 
+#graphing expected vs predicted data
 fig = plt.figure()
 ax_real = fig.add_subplot(1,2,1,projection='3d')
 ax_prediction = fig.add_subplot(1,2,2, projection = '3d')
