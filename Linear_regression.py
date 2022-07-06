@@ -8,15 +8,23 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import pandas as pd
 from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import Lasso
-from sklearn.linear_model import LassoCV
-from sklearn import linear_model
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
+from numpy import mean
+from numpy import absolute
+from numpy import sqrt
+import pandas as pd
 
 z_variable_selection = 0 # change this variable to corespond with the theta value form 0-5
 
 wb = load_workbook(r"C:\Users\alqas\Research\SHEtable2Vdc.xlsx")
 ws = wb.active
+
 
 x_vdc1=list()
 y_vdc2=list()
@@ -42,22 +50,23 @@ X, y = df[["x_1", "x_2"]], df["y"]
 #splitting test and training data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=48)
 
-#fitting Lasso regression
-Lasso_Reg = Lasso(alpha=.1)
-Lasso_Reg.fit(X_train,y_train)
+#fitting LinearRegression regression
+LinearRegression_Reg = LinearRegression()
+LinearRegression_Reg.fit(X_train,y_train)
 
 #predicting values for test set
 start=timeit.default_timer()  
-Lasso_predicted = Lasso_Reg.predict(X_test)
+LinearRegression_predicted = LinearRegression_Reg.predict(X_test)
 
 #finding Mean squared error
-Lasso_rmse = np.sqrt(mean_squared_error(y_test, Lasso_predicted))
+LinearRegression_rmse = np.sqrt(mean_squared_error(y_test, LinearRegression_predicted))
 stop = timeit.default_timer()
+
 
 #reformating input data for graphing
 x_test = X_test["x_1"]
 Y_test = X_test["x_2"]
-differance = Lasso_predicted - y_test
+differance = LinearRegression_predicted - y_test
 
 #graphing expected vs predicted data
 fig = plt.figure()
@@ -65,7 +74,7 @@ ax_real = fig.add_subplot(1,3,1,projection='3d')
 ax_prediction = fig.add_subplot(1,3,2, projection = '3d')
 ax_differance = fig.add_subplot(1,3,3, projection = '3d')
 surf_real = ax_real.plot_trisurf(x_test,Y_test,y_test, cmap=cm.coolwarm,linewidth=0, antialiased=False)
-surf_prediction= ax_prediction.plot_trisurf(x_test,Y_test, Lasso_predicted, cmap=cm.coolwarm,linewidth=0, antialiased=False)
+surf_prediction= ax_prediction.plot_trisurf(x_test,Y_test, LinearRegression_predicted, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 surf_differance = ax_differance.plot_trisurf(x_test,Y_test, differance, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 cbaxes = fig.add_axes([0.1, 0.3, 0.01, 0.4]) 
 fig.colorbar(surf_real, shrink=0.5, aspect=5, cax = cbaxes )
@@ -79,20 +88,22 @@ ax_differance.set_xlabel('Vdc1, volts')
 ax_differance.set_ylabel('Vdc2, volts')
 ax_differance.set_zlabel('Angle, degrees')
 
-#cross validation 
-scores = cross_val_score(Lasso_Reg,X,y,scoring="neg_mean_squared_error",cv=10)
-Lasso_CV = np.sqrt(-scores) 
 
+#cross validation 
+# LinearRegression_CV = KFold(n_splits=10,random_state=1,shuffle=True)
+# LinearRegression_model = LinearRegression()
+scores = cross_val_score(LinearRegression_Reg, X, y,scoring='neg_mean_squared_error', cv =10)
+Rmse_score =  np.sqrt(-scores) 
 
 ## EXECUTABLE ITEMS
 
 #predicted values
-print("prediction values",Lasso_predicted)
+print("prediction values",LinearRegression_predicted)
 # RMSE of cross validation
-print("RMSE for set",Lasso_rmse)
+print("RMSE for set",LinearRegression_rmse)
 # time prediction/execution
 print('Time for prediction: ', stop - start)
 # Cross validation information
-print("the value of cross validation value",Lasso_CV.mean())
+print("cross validation attempts" ,Rmse_score.mean())
 #show graph
 plt.show()

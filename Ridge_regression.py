@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import pandas as pd
 from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import Lasso
-from sklearn.linear_model import LassoCV
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import RidgeCV
 from sklearn import linear_model
 from sklearn.model_selection import cross_val_score
 
@@ -17,6 +17,7 @@ z_variable_selection = 0 # change this variable to corespond with the theta valu
 
 wb = load_workbook(r"C:\Users\alqas\Research\SHEtable2Vdc.xlsx")
 ws = wb.active
+
 
 x_vdc1=list()
 y_vdc2=list()
@@ -42,22 +43,23 @@ X, y = df[["x_1", "x_2"]], df["y"]
 #splitting test and training data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=48)
 
-#fitting Lasso regression
-Lasso_Reg = Lasso(alpha=.1)
-Lasso_Reg.fit(X_train,y_train)
+#fitting Ridge regression
+Ridge_Reg = Ridge(alpha=100, solver="cholesky")
+Ridge_Reg.fit(X_train,y_train)
 
 #predicting values for test set
 start=timeit.default_timer()  
-Lasso_predicted = Lasso_Reg.predict(X_test)
+Ridge_predicted = Ridge_Reg.predict(X_test)
 
 #finding Mean squared error
-Lasso_rmse = np.sqrt(mean_squared_error(y_test, Lasso_predicted))
+Ridge_rmse = np.sqrt(mean_squared_error(y_test, Ridge_predicted))
 stop = timeit.default_timer()
+
 
 #reformating input data for graphing
 x_test = X_test["x_1"]
 Y_test = X_test["x_2"]
-differance = Lasso_predicted - y_test
+differance = Ridge_predicted - y_test
 
 #graphing expected vs predicted data
 fig = plt.figure()
@@ -65,7 +67,7 @@ ax_real = fig.add_subplot(1,3,1,projection='3d')
 ax_prediction = fig.add_subplot(1,3,2, projection = '3d')
 ax_differance = fig.add_subplot(1,3,3, projection = '3d')
 surf_real = ax_real.plot_trisurf(x_test,Y_test,y_test, cmap=cm.coolwarm,linewidth=0, antialiased=False)
-surf_prediction= ax_prediction.plot_trisurf(x_test,Y_test, Lasso_predicted, cmap=cm.coolwarm,linewidth=0, antialiased=False)
+surf_prediction= ax_prediction.plot_trisurf(x_test,Y_test, Ridge_predicted, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 surf_differance = ax_differance.plot_trisurf(x_test,Y_test, differance, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 cbaxes = fig.add_axes([0.1, 0.3, 0.01, 0.4]) 
 fig.colorbar(surf_real, shrink=0.5, aspect=5, cax = cbaxes )
@@ -79,20 +81,20 @@ ax_differance.set_xlabel('Vdc1, volts')
 ax_differance.set_ylabel('Vdc2, volts')
 ax_differance.set_zlabel('Angle, degrees')
 
-#cross validation 
-scores = cross_val_score(Lasso_Reg,X,y,scoring="neg_mean_squared_error",cv=10)
-Lasso_CV = np.sqrt(-scores) 
 
+#cross validation 
+scores = cross_val_score(Ridge_Reg, X, y,scoring='neg_mean_squared_error', cv =10)
+Ridge_CV =  np.sqrt(-scores) 
 
 ## EXECUTABLE ITEMS
 
 #predicted values
-print("prediction values",Lasso_predicted)
+print("prediction values",Ridge_predicted)
 # RMSE of cross validation
-print("RMSE for set",Lasso_rmse)
+print("RMSE for set",Ridge_rmse)
 # time prediction/execution
 print('Time for prediction: ', stop - start)
 # Cross validation information
-print("the value of cross validation value",Lasso_CV.mean())
+print("the value of cross validation value", Ridge_CV.mean())
 #show graph
 plt.show()
